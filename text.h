@@ -5,13 +5,35 @@ wmoore02@uoguelph.ca
 */
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
+#include<ctype.h>
+
+#define MAX_LINE_LENGTH 256
 
 struct node_struct{
     void *data;
     struct node_struct *next;
 };
 
+enum type{
+    one,
+    two,
+    three
+};
+
 struct node_struct* txt2Words(FILE *fp);
+
+char* getWord(char** mainString);
+
+char** splitString(char* toSplit, int* wordCounter);
+
+char** addWord(char** toReturn, int* wordCounter, char* theString, int start, int end);
+
+char* subString(char* toSearch, int start, int end);
+
+enum type classifyCharacter(char theChar);
+
+struct node_struct* addNode(char* stringData);
 
 struct node_struct* search(struct node_struct *list, char *target, int (*compar)(const void*, const void*));
 
