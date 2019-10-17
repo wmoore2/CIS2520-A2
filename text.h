@@ -25,12 +25,6 @@ struct node_struct* txt2Words(FILE *fp);
 
 char* getWord(char** mainString);
 
-char** splitString(char* toSplit, int* wordCounter);
-
-char** addWord(char** toReturn, int* wordCounter, char* theString, int start, int end);
-
-char* subString(char* toSearch, int start, int end);
-
 enum type classifyCharacter(char theChar);
 
 struct node_struct* addNode(char* stringData);
