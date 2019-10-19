@@ -27,7 +27,7 @@ char* getWord(char** mainString);
 
 enum type classifyCharacter(char theChar);
 
-struct node_struct* addNode(char* stringData);
+struct node_struct* addNode(void* stringData);
 
 struct node_struct* search(struct node_struct *list, char *target, int (*compar)(const void*, const void*));
 
