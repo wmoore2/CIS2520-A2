@@ -10,6 +10,7 @@ struct node_struct* txt2Words(FILE *fp){
     /*For characters that are not included 
     in ascii, put it in its own category. 
     will not be marked on how these are handled*/
+    int i = 0;
     struct node_struct *head, **runningStruct;
     char* wordIn;
     char* wordInStart;
@@ -25,6 +26,13 @@ struct node_struct* txt2Words(FILE *fp){
         if(wordIn == NULL){
             free(wordInStart);
             break;
+        }
+
+        for(i = 0; i < strlen(wordIn); i++){
+            if(wordIn[i] == '\r'){
+                wordIn[i] = '\n';
+                wordIn[i + 1] = '\0';
+            }
         }
         /*iterate through the line*/
         while(strlen(wordIn) != 0){
