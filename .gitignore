@@ -1,4 +1,0 @@
-makefile
-bin/*
-tests/*
-textTest.c
