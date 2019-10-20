@@ -35,7 +35,17 @@ struct node_struct* copy(struct node_struct *start, struct node_struct *end);
 
 void ftext(FILE *fp, struct node_struct *list);
 
+int compareString(const void* arg1, const void* arg2);
+
 struct node_struct* sort(struct node_struct *list, int (*compar)(const void*, const void*));
+
+void mergeSplit(struct node_struct *list, struct node_struct **front, struct node_struct **back);
+
+void mergeSort(struct node_struct **list, int (*compar)(const void*, const void*));
+
+struct node_struct* merge(struct node_struct *front, struct node_struct *back, int (*compar)(const void*, const void*));
+
+void removeNode(struct node_struct *previous, struct node_struct *toRemove);
 
 void remove_repeats(struct node_struct *list, int (*compar)(const void*, const void*));
 

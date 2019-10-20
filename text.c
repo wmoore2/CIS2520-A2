@@ -95,7 +95,7 @@ enum type classifyCharacter(char theChar){
         return two;
     }
 
-    if(classifyCount == 0 && isspace(theChar)){
+    if(classifyCount == 0 && theChar == '\n'){
         return three;
     } else {
         classifyCount = 0;
@@ -115,6 +115,8 @@ struct node_struct* addNode(void* theData){
 
 struct node_struct* search(struct node_struct *list, char *target, int (*compar)(const void*, const void*)){
     struct node_struct *head, **builder;
+    /*initialize head*/
+    head = NULL;
     /*double pointer to start reading in */
     builder = &head;
     /*loop through entirety of list*/
@@ -193,13 +195,139 @@ void ftext(FILE *fp, struct node_struct *list){
     return;
 }
 
-struct node_struct* sort(struct node_struct *list, int (*compar)(const void*, const void*)){
+int compareString(const void* arg1, const void* arg2){
+    /*cast arguments to string*/
+    char* str1 = (char*)arg1;
+    char* str2 = (char*)arg2;
+    /*compare them*/
+    return strcmp(str1, str2);
+}
 
-    return NULL;
+struct node_struct* sort(struct node_struct *list, int (*compar)(const void*, const void*)){
+    struct node_struct* toSort;
+    /*copy list to new list*/
+    toSort = copy(list, NULL);
+    /*sort list with mergeSort*/
+    mergeSort(&toSort, compar);
+    /*return sorted list*/
+    return toSort;
+}
+
+void mergeSplit(struct node_struct *list, struct node_struct **front, struct node_struct **back){
+    int listLen = length(list), counter = 0;
+    struct node_struct **frontList = NULL, **backList = NULL;
+    /*assign new variables so as to preserve values outside the function*/
+    frontList = front;
+    backList = back;
+    /*iterate through given list*/
+    while(list){
+        /*check for midpoint in list*/
+        if(counter < (listLen / 2)){
+            /*add nodes to the front list*/
+            *frontList = list;
+            frontList = &((*frontList)->next);
+        } else {
+            /*add nodes to the back list*/
+            *backList = list;
+            backList = &((*backList)->next);
+        }
+        /*move to next node*/
+        list = list->next;
+        counter++;
+    }
+    /*point the end of the front list to NULL*/
+    (*frontList) = NULL;
+}
+
+void mergeSort(struct node_struct **list, int (*compar)(const void*, const void*)){
+    /*create instance variables*/
+    struct node_struct *front = NULL, *back = NULL;
+    /*recursive base case for when there are 0 or 1 elements*/
+    if(*list == NULL || (*list)->next == NULL){
+        return;
+    }
+
+    /*split the current list into two halves: front and back*/
+    /*double pointers being used here to get the information out*/
+    mergeSplit(*list, &front, &back);
+
+    /*recursively sort the two halves of the list*/
+    mergeSort(&front, compar);
+    mergeSort(&back, compar);
+
+    /*merge halves and return the head*/
+    *list = merge(front, back, compar);
+}
+
+struct node_struct* merge(struct node_struct *front, struct node_struct *back, int (*compar)(const void*, const void*)){
+    struct node_struct *head, **runningStruct;
+    int combinedLength = 0, counter = 0;
+    /*double pointer for returning*/
+    runningStruct = &head;
+    /*get the length of the final list*/
+    combinedLength = length(front) + length(back);
+    /*build list*/
+    while(counter < combinedLength){
+        if(front == NULL){
+            /*return the back list if the front list is empty*/
+            *runningStruct = back;
+            break;
+        } else if(back == NULL){
+            /*return the front list if the back list is empty*/
+            *runningStruct = front;
+            break;
+        }
+
+        if(compar(front->data, back->data) < 0){
+            /*add fronts node*/
+            *runningStruct = front;
+            runningStruct = &((*runningStruct)->next);
+            front = front->next;
+        } else {
+            /*add backs node*/
+            *runningStruct = back;
+            runningStruct = &((*runningStruct)->next);
+            back = back->next;
+        }
+        counter++;
+    }
+    return head;
+}
+
+void removeNode(struct node_struct *previous, struct node_struct *toRemove){
+    /*move next pointer past the removed node*/
+    previous->next = toRemove->next;
+    /*free the node*/
+    free(toRemove);
+    toRemove = NULL;
+    return;
 }
 
 void remove_repeats(struct node_struct *list, int (*compar)(const void*, const void*)){
-    
+    struct node_struct **head;
+    /*double pointer for building new list without repeats*/
+    head = &list;
+    /*iterate through list*/
+    while(list){
+        /*check for existence of next element*/
+        if(list->next){
+            /*check if current and next node differ*/
+            if(compar(list->data, list->next->data)){
+                /*add new entry to the list*/
+                *head = list;
+                head = &((*head)->next);
+                /*move to next node*/
+                list = list->next;
+            } else {
+                /*remove the duplicate node*/
+                removeNode(list, list->next);
+            }
+        } else {
+            break;
+        }
+    }
+    /*end list by setting the last node to null*/
+    (*head)->next = NULL;
     return;
 }
 
@@ -208,8 +336,8 @@ int length(struct node_struct *list){
     /*iterate through the list*/
     while(list){
         /*increment counter for each node*/
-        counter++;
         list = list->next;
+        counter++;
     }
     return counter;
 }
@@ -221,7 +349,9 @@ void free_list(struct node_struct *list, int free_data){
         temp = list->next;
         /*free the data*/
         if(free_data){
-            free(list->data);
+            if(list->data){
+                free(list->data);
+            }
         }
         /*free the node*/
         free(list);
